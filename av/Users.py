@@ -42,7 +42,9 @@ class Users():
             pass
         elif role == 'revisor2':
             pass
-        else raise
+        else:
+            pass        
+        
         
 
 if __name__ == '__main__':
