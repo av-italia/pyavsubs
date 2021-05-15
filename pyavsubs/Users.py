@@ -1,7 +1,5 @@
+from utils import import_logical
 import csv
-
-def is_true(x):
-    return (x == "TRUE") or (x == "True") or (x == True)
 
 class User():
     """
@@ -22,7 +20,7 @@ class User():
             self.revisor1,  
             self.revisor2)
         return msg
-       
+      
 
 class Users():
     """
@@ -42,9 +40,9 @@ class Users():
                 commented = row['gh_user'].startswith("#")
                 if not commented:
                     u = User(row['gh_user'],
-                             is_true(row['translator']),
-                             is_true(row['revisor1']),
-                             is_true(row['revisor2']))
+                             import_logical(row['translator']),
+                             import_logical(row['revisor1']),
+                             import_logical(row['revisor2']))
                     self.__data.append(u)
 
     def __str__(self):
