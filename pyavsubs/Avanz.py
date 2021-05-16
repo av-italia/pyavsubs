@@ -2,11 +2,25 @@ import csv
 import re
 
 from utils import ascii_header
-from utils import check_input
 from utils import import_character
 from utils import import_logical
 from utils import match_arg
 from utils import trn_dig_to_rev_fn
+
+def trn_dig_to_rev_fn(std, ratio):
+    n_revs = math.floor(len(std)/ratio) + 1
+    start_rev = std[::ratio]
+    stop_rev  = std[ratio -1: :ratio]
+    # add last if missing
+    last = std[len(std) - 1]
+    if last not in stop_rev:
+        stop_rev.append(last) 
+    revs = ["{0}_{1}.srt".format(sta, sto) \
+            for sta, sto in zip(start_rev, stop_rev)]
+    # ripeti ogni elemento ratio volte
+    revs = [r for r in revs for prog in range(ratio)]
+    # tieni solo quelle utili
+    return revs[:len(std):]
 
 class Chunk():
     """

@@ -1,5 +1,7 @@
-from utils import import_logical
 import csv
+
+from utils import import_character
+from utils import import_logical
 
 class User():
     """
@@ -39,7 +41,7 @@ class Users():
             for row in reader:
                 commented = row['gh_user'].startswith("#")
                 if not commented:
-                    u = User(row['gh_user'],
+                    u = User(import_character(row['gh_user']),
                              import_logical(row['translator']),
                              import_logical(row['revisor1']),
                              import_logical(row['revisor2']))
