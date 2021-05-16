@@ -1,10 +1,12 @@
 import csv
 import re
 
-from utils import import_logical
-from utils import import_character
+from utils import ascii_header
 from utils import check_input
-
+from utils import import_character
+from utils import import_logical
+from utils import match_arg
+from utils import trn_dig_to_rev_fn
 
 class Chunk():
     """
@@ -102,7 +104,7 @@ class Avanz():
     def to_disk(self, f = None, newdata = None):
         if (f == None):
             f = self.__f
-        if (newdata = None):
+        if (newdata == None):
             export = self.__data
         else:
             export = newdata
@@ -132,47 +134,246 @@ class Avanz():
                     'rev2_completed': chunk.rev2_completed
                 })
 
+    def setup(self, trn_filenames, trn_to_rev_ratio, f = None):
+        n = len(trn_filenames)
+        trn_filename = sorted(trn_filenames)
+        start_digit = [re.sub(".+(\d{6}).+", "\\1", f)\
+                       for f in trn_filename]
+        trn_start = [re.sub("(\d{2})(\d{2})(\d{2})", "\\1:\\2:\\3", d) \
+                     for d in start_digit]
+        rev2_filename = trn_dig_to_rev_fn(start_digit, trn_to_rev_ratio)
 
-    def setup(self, trn_filenames, trn_to_rev_ratio):
-        trn_filenames = sorted(trn_filenames)
+        # the dataset
+        empty_char = ["" for i in range(n)]
+        all_false  = [False for i in range(n)]
+        # 
+        # trn_filename    = trn_filename
+        # trn_start       = trn_start
+        trn_assignee    = empty_char
+        trn_assigned    = all_false
+        trn_completed   = all_false
+        ##
+        rev1_assignee   = empty_char
+        rev1_assigned   = all_false
+        rev1_completed  = all_false
+        ##
+        # rev2_filename   = rev2_filename
+        rev2_ready      = all_false
+        rev2_created    = all_false
+        rev2_assignee   = empty_char
+        rev2_assigned   = all_false
+        rev2_completed  = all_false
+
+        avanz = []
+        for i in range(n):
+            avanz.append(Chunk(trn_filename[i], 
+                               trn_start[i],    
+                               trn_assignee[i],   
+                               trn_assigned[i],   
+                               trn_completed[i],                  
+                               rev1_assignee[i],  
+                               rev1_assigned[i],  
+                               rev1_completed[i], 
+                               rev2_filename[i],
+                               rev2_ready[i],     
+                               rev2_created[i],   
+                               rev2_assignee[i],  
+                               rev2_assigned[i],  
+                               rev2_completed[i]))
+        self.to_disk(f = f, newdata = avanz)
         
-    
-
     def assignable_files(self, role):
-        pass
+        role = match_arg(role, ['translator', 'revisor1', 'revisor2'])
+        res = []
+        for c in self.__data:
+            if role == 'translator':
+                cond = not c.trn_assigned
+                res += [c.trn_filename] if cond else []
+            elif role == 'revisor1':
+                cond = (c.trn_completed) and (not c.rev1_assigned)
+                res += [c.trn_filename] if cond else []
+            elif role =='revisor2':
+                # return unique values here
+                cond = (c.rev2_created) and \
+                    (not c.rev2_assigned) and \
+                    (not c.rev2_filename in res)
+                res += [c.rev2_filename] if cond else []
+            else:
+                raise ValueError("Unexpected role input:", role)
+        return res
 
     def to_be_completed_files(self, role):
-        pass
+        role = match_arg(role, ['translator', 'revisor1', 'revisor2'])
+        res = []
+        for c in self.__data:
+            if role == 'translator':
+                cond = c.trn_assigned and (not c.trn_completed)
+                res += [c.trn_filename] if cond else []
+            elif role == 'revisor1':
+                cond = (c.rev1_assigned) and (not c.rev1_completed)
+                res += [c.trn_filename] if cond else []
+            elif role =='revisor2':
+                # return unique values here
+                cond = (c.rev2_assigned) and (not c.rev2_completed) and \
+                    (not c.rev2_filename in res)
+                res += [c.rev2_filename] if cond else []                
+            else:
+                raise ValueError("Unexpected role input:", role)
+        return res
 
     def filenames(self, phase):
-        pass
-
-    def list_assignee(self):
-        pass
-
-    def unfinished_homeworks(self):
-        pass
+        phase = match_arg(phase, ['trn', 'rev2'])
+        res = []
+        for c in self.__data:
+            if phase == 'trn':
+                res += [c.trn_filename]
+            elif phase == 'rev2':
+                res += [c.rev2_filename] if (c.rev2_filename not in res) \
+                    else []
+            else:
+                raise ValueError("Unexpected role phase:", phase)
+        return res
+    
+    def unfinished_homeworks(self, user, role):
+        role = match_arg(role, ['translator', 'revisor1', 'revisor2'])
+        res = []
+        for c in self.__data:
+            if role == 'translator':
+                cond = (user == c.trn_assignee) and (c.trn_assigned) and \
+                    (not c.trn_completed)
+                res += [c.trn_filename] if cond else []
+            elif role == 'revisor1':
+                cond = (user == c.rev1_assignee) and (c.rev1_assigned) and \
+                    (not c.rev1_completed)
+                res += [c.rev1_filename] if cond else []
+            elif role =='revisor2':
+                cond = (user == c.rev2_assignee) and (c.rev2_assigned) and \
+                    (not c.rev2_completed)
+                res += [c.rev2_filename] if cond else []
+            else:
+                raise ValueError("Unexpected role input:", role)
+        return res
 
     def assign(self, old_f, assignee, new_f, role):
-        pass
+        role = match_arg(role, ['translator', 'revisor2'])
+        for c in self.__data:
+            if role == 'translator':
+                cond = (c.trn_filename == old_f)
+                if cond:
+                    c.trn_assignee = assignee
+                    c.trn_assigned = True
+                    c.trn_filename = new_f
+            elif role =='revisor2':
+                cond = (c.rev2_filename == old_f)
+                if cond:
+                    c.rev2_assignee = assignee
+                    c.rev2_assigned = True
+                    c.rev2_filename = new_f
+            else:
+                raise ValueError("Unexpected role input:", role)
+
+    def mark_as_started(self, f, assignee, role):
+        role = match_arg(role, ['revisor1'])
+        for c in self.__data:
+            if role == 'revisor1':
+                cond = (c.trn_filename == f)
+                if cond:
+                    c.rev1_assignee = assignee
+                    c.rev1_assigned = True
+            else:
+                raise ValueError("Unexpected role input:", role)
 
     def mark_as_completed(self, f, phase):
-        pass
+        phase = match_arg(phase, ['trn', 'rev1', 'rev2'])
+        rev2_ready = dict()
+        rev2_complete = dict()
+        for c in self.__data:
+            if phase == 'trn':
+                if c.trn_filename == f:
+                    c.trn_completed = True
+            elif phase == 'rev1':
+                if c.trn_filename == f:
+                    c.rev1_completed = True
+                # checking if all rev1 are completed
+                if (c.rev2_filename not in rev2_ready.keys()):
+                    rev2_ready[c.rev2_filename] = True
+                rev2_ready[c.rev2_filename] = \
+                    rev2_ready[c.rev2_filename] and c.rev1_completed
+            elif phase == 'rev2':
+                if c.rev2_filename == f:
+                    c.rev2_completed = True
+                # checking if all rev2 are completed
+                if (c.rev2_filename not in rev2_complete.keys()):
+                    rev2_complete[c.rev2_filename] = True
+                rev2_complete[c.rev2_filename] = \
+                    rev2_complete[c.rev2_filename] and c.rev2_completed
+            else:
+                raise ValueError("Unexpected phase input:", phase)
 
+        # update creable rev2     
+        if phase == 'rev1':
+            for c in self.__data:
+                c.rev2_ready = rev2_complete[c.rev2_filename]
+        
+        # checks: tutte le rev2 complete, creazione
+        if phase == 'rev2':
+            if (all(rev2_complete.values())):
+                ascii_header('Tutte le revisioni sono complete')
+                ascii_header('creare il file finale con make final-srt')
+        
+        
     def revs2_todo(self):
-        pass
+        res = []
+        for c in self.__data:
+            cond = (c.rev2_ready) and (not c.rev2_created) and \
+                (not c.rev2_filename in res)
+            res += [c.rev2_filename] if cond else []
+        return res
 
-    def revs2_created(self):
-        pass
+    def revs2_created(self, f):
+        for c in self.__data:
+            if (c.rev2_filename == f):
+                c.rev2_created = True
 
-    def get_trn_fn_for_rev2(self):
-        pass
+    def get_trn_fn_for_rev2(self, f):
+        res = []
+        for c in self.__data:
+            res += [c.trn_filename] if (c.rev2_filename == f) else []
+        return sorted(res)
     
+    def list_assignee(self):
+        print("\n\n")
+        print("Time\tTrn\Rev1\tRev2")
+        for c in self.__data:
+            line = "{0}\t{1}\t{2}\t{3}".format(c.trn_start,
+                                               c.trn_assignee,
+                                               c.rev1_assignee,
+                                               c.rev2_assignee)
+            print(line)
+        print("\n\n")
+        
     def monitoring(self):
         pass
-
+    
 if __name__ == '__main__':
     av = Avanz(f = '/home/l/av_it_subs/subs/gymix/zz_avanzamento.csv')
-    print(av)
-    av.to_disk('/tmp/asdomar.csv')
-    av2 = Avanz('/tmp/asdomar.csv')
+    # print(av)
+    # av.to_disk('/tmp/asdomar.csv')
+    # av2 = Avanz('/tmp/asdomar.csv')
+    # trn_filenames = ["subs_000000.srt", "subs_000500.srt",
+    #                  "subs_001000.srt", "subs_001500.srt",
+    #                  "subs_002000.srt", "subs_002500.srt",
+    #                  "subs_003000.srt", "subs_003500.srt",
+    #                  "subs_004000.srt", "subs_004500.srt"]
+    # av.setup(f = '/tmp/setup_test.csv',
+    #          trn_filenames = trn_filenames,
+    #          trn_to_rev_ratio = 6)
+    # print("\n\nassignable files")
+    # print(av.assignable_files(role = "tr"))
+    # print(av.assignable_files(role = "revisor1"))
+    # print(av.assignable_files(role = "revisor2"))
+    # print("\n\nto be completed files")
+    # print(av.to_be_completed_files(role = "tr"))
+    # print(av.to_be_completed_files(role = "revisor1"))
+    # print(av.to_be_completed_files(role = "revisor2"))
+    print(av.filenames(phase = 'trn'))
