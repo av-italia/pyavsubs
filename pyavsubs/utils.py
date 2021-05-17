@@ -59,4 +59,3 @@ def secs_to_digits(s):
         str(hours).zfill(2),
         str(minutes).zfill(2),
         str(secs).zfill(2))
-
