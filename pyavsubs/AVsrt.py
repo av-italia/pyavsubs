@@ -38,7 +38,7 @@ class Chunk():
             print(output, file = f)
 
 class AVsrt:
-
+    """ Class representing an srt """
     def __init__(self,
                  id = "",
                  f = None,       # one or many (list) file
