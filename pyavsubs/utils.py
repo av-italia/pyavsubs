@@ -43,19 +43,3 @@ def listing(x):
     for i in x:
         print(i)
     print("\n")
-    
-def secs_to_digits(s):
-    """ return numeric second to a XXYYZZ character format where
-         ## XX=hours, YY=minutes, ' ZZ=seconds
-    """
-    sec_in_a_hour = 1 * 60 * 60
-    sec_in_a_min  = 60
-    remaining = int(s)
-    hours = math.floor(remaining / sec_in_a_hour)
-    remaining = remaining - hours * sec_in_a_hour
-    minutes = math.floor(remaining / sec_in_a_min)
-    secs = remaining - minutes * sec_in_a_min
-    return "{0}{1}{2}".format(
-        str(hours).zfill(2),
-        str(minutes).zfill(2),
-        str(secs).zfill(2))
