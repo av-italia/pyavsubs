@@ -1,11 +1,11 @@
 import csv
+import math
 import re
 
 from utils import ascii_header
 from utils import import_character
 from utils import import_logical
 from utils import match_arg
-from utils import trn_dig_to_rev_fn
 
 def trn_dig_to_rev_fn(std, ratio):
     n_revs = math.floor(len(std)/ratio) + 1
@@ -87,24 +87,27 @@ class Avanz():
         self.__data = []
         if (f == None):
             f = self.__f
-        with open(file = f) as csvfile:
-            reader = csv.DictReader(csvfile)
-            for row in reader:
-                c = Chunk(row['trn_filename']  ,              
-                          row['trn_start']     ,
-                          row['trn_assignee']  ,
-                          row['trn_assigned']  ,
-                          row['trn_completed'] ,
-                          row['rev1_assignee'] ,
-                          row['rev1_assigned'] ,
-                          row['rev1_completed'],
-                          row['rev2_filename'] ,
-                          row['rev2_ready']    ,
-                          row['rev2_created']  ,
-                          row['rev2_assignee'] ,
-                          row['rev2_assigned'] ,
-                          row['rev2_completed'])
-                self.__data.append(c)
+        try:
+            with open(file = f) as csvfile:
+                reader = csv.DictReader(csvfile)
+                for row in reader:
+                    c = Chunk(row['trn_filename']  ,              
+                              row['trn_start']     ,
+                              row['trn_assignee']  ,
+                              row['trn_assigned']  ,
+                              row['trn_completed'] ,
+                              row['rev1_assignee'] ,
+                              row['rev1_assigned'] ,
+                              row['rev1_completed'],
+                              row['rev2_filename'] ,
+                              row['rev2_ready']    ,
+                              row['rev2_created']  ,
+                              row['rev2_assignee'] ,
+                              row['rev2_assigned'] ,
+                              row['rev2_completed'])
+                    self.__data.append(c)
+        except FileNotFoundError:
+            print(f, "not found for import. Ignoring.")
 
     def __str__(self):
         """

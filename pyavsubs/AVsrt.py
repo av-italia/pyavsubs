@@ -19,7 +19,7 @@ def secs_to_digits(s):
     return str(hours).zfill(2) + str(minutes).zfill(2) + str(secs).zfill(2)
 
 
-class Chunk():
+class Chunk:
     """ Class representing a chunk of subs (aka a single translate file) """
     def __init__(self, fn, h, subs):
         self.fn = fn    # filename: subs_00000.srt
@@ -140,8 +140,10 @@ class AVsrt:
             c = Chunk(fn = fn, h = h, subs = subs)
             chunks.append(c)
 
+        # output to file all the chunks    
         [c.to_srt(output_dir = output_dir) for c in chunks]
-
+        # return the filenames to setup monitoring
+        return [c.fn for c in chunks]
         
             
 if __name__ == '__main__':
