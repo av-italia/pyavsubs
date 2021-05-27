@@ -65,7 +65,51 @@ class Prj:
         unsubbed_f = os.path.join(self.prj_dir, 'zz_UNSUBBED')
         with open(file = unsubbed_f, mode = 'w') as f:
             print(templates.unsubbed, file = f)
+
+    def create_sandbox(self):
+        trn_users = menu(title = 'Specificare utenti (TRN) per sandbox',
+                         choices  = self.users.translators(),
+                         multiple = True,
+                         strict   = True)
+        rev1_users = menu(title = 'Specificare utenti (REV1) per sandbox',
+                          choices  = self.users.revisors1(),
+                          multiple = True,
+                          strict   = True)
+
+        ## sandbox di translators
+        if (len(trn_users)):
+            ## notify: header
+            ascii_header('sandbox traduttori')
+            ## check permissions
+            allowed_users = self.check_allowed_users(trn_users, 'translator')
+            ## files and dirs
+            files = sandbox_file(allowed_users, role = "translator")
+            # ## copia file
+            # tmp = Map(file.copy,
+            #            from = list(sandbox_template_traduttori),
+            #            to = files,
+            #            overwrite = TRUE)
+            # ## notify: file list
+            # listing(files)
+
+        ## sandbox di revisori (per revisione 1)
+        if (len(rev1_users)):
+            ## notify: header
+            ascii_header('sandbox revisori (fase 1)')
+            ## check permissions
+            allowed_users = self.check_allowed_users(rev1_users, 'revisor1')
+            ## files and dirs
+            files = sandbox_file(allowed_users, role = "revisor1")
+            # ## copia file
+            # tmp = Map(file.copy,
+            #            from = list(sandbox_template_revisori1),
+            #            to = files,
+            #            overwrite = TRUE)
+            # ## notify: file list
+            # listing(files)
+            
         
 if __name__ == '__main__':
     prj = Prj()
     # prj.setup()
+
