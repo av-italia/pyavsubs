@@ -2,6 +2,7 @@ import csv
 
 from utils import import_character
 from utils import import_logical
+from utils import match_arg
 
 class User():
     """
@@ -92,6 +93,28 @@ class Users():
         tags = ["@" + u for u in us]
         return " ".join(tags)
 
+    def keep_allowed(self, users, role):
+        ## input github logins and check that are allowed as role
+        ## siano stati abilitati in data/users.csv (a seconda del permesso
+        ## specificato) restituisce gli utenti abilitati, segnala se ve ne
+        ## sono di non abilitati e interrompe se nessuno è abilitato
+        role = match_arg(role, ['translator', 'revisor1', 'revisor2'])
+        if role == 'translator':
+            allowed = self.translators()
+        else if role == 'revisor1':
+            allowed = self.revisors1()
+        else if  role == 'revisor2':
+            allowed = self.revisors2()
+        else:
+            ValueError("there is something wrong here".)
+        rval = []
+        for u in users:
+            if u in allowed:
+                rval.append(u)
+            else:
+                print("Ignoring request for", u, ". Not allowed")
+        return rval
+        
 if __name__ == '__main__':
     u = Users('/home/l/av_it_subs/data/users.csv')
     u
