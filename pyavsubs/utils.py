@@ -125,8 +125,22 @@ def menu(choices = None, title = "", multiple = False, strict = False):
         ind = list(ind)
     
     if strict:
-        pass
-
+        # continue asking for input until all index are between the selectable
+        while not all([i in avail_with_0 for i in ind]):
+            not_in = [i for i in ind if i not in avail_with_0]
+            print("Not valid insertion: ", not_in, "\n")
+            ind = line_to_numbers(input(select_msg))
+            if not isinstance(ind, list):
+                ind = list(ind)
+    else:
+        # keep only the input in avail_with_0
+        allowed = [i for i in ind if i in avail_with_0]
+        any_not_allowed = not all(allowed)
+        if any_not_allowed:
+            print("Removed some values (not 0 or specified possibilities): ",
+                  list(set(ind) - set(allowed)), ".")
+            ind = allowed
+        
     # make unique, and obtain the selection
     ind = list(set(ind))
     log_ind = [i in ind
