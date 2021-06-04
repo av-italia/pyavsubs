@@ -3,6 +3,7 @@ import math
 import readline
 readline.parse_and_bind('set editing-mode emacs')
 
+
 def import_logical(x):
     """
     Function to import logical values saved in csv
@@ -14,6 +15,7 @@ def import_logical(x):
     else:
         return False
 
+    
 def import_character(x):
     """
     Function to import characters values saved in csv
@@ -23,6 +25,7 @@ def import_character(x):
     else:
         return str(x)
 
+    
 def match_arg(arg, choices):
     res = [expanded for expanded in choices \
            if expanded.startswith(arg)]
@@ -34,6 +37,7 @@ def match_arg(arg, choices):
     else:
         return res[0]
 
+    
 def ascii_header(x):
     l = len(x)
     header = ("=" * l)
@@ -41,20 +45,14 @@ def ascii_header(x):
     print(x.upper())
     print(header, '\n')
 
+    
 def listing(x):
     for i in x:
         print(i)
     print("\n")
 
-
-def unique(items):
-    seen = set()
-    for item in items:
-        if item not in seen:
-            yield item
-            seen.add(item)
-    
-def line_to_numbers(x):
+   
+def line_to_numbers(x, unique = False):
     """ transform a string of positive numbers "1 2-3, 4, 6-10" to a list [1,2,3,4,6,7,8,9,10] """
     # replace comma with white chars
     x = x.replace(",", " ")
@@ -96,11 +94,19 @@ def line_to_numbers(x):
     for i in range(len(expanded)):
         expanded[i] = int(expanded[i])
     # remove duplicated and sort
-    rval = list(set(expanded))
+    if unique:
+        rval = list(set(expanded))
+    else:
+        rval = expanded
     rval.sort()
     return(rval)
 
-def menu(choices = None, title = "", multiple = False, strict = False):
+
+def menu(choices  = None,
+         title    = "",
+         multiple = False,
+         repeated = False,
+         strict   = True):
     """ 
     Return a single choice, a list of selected choiches or None if nothing
     was choosed
@@ -113,17 +119,13 @@ def menu(choices = None, title = "", multiple = False, strict = False):
         select_msg = "Selection (values as '1, 2-3, 6') or 0 to exit: "
     else:
         select_msg = "Selection (0 to exit): "
-        
     if title:
         print(title, "\n\n")
-
     print(the_menu)
     ind = line_to_numbers(input(select_msg))
-
     # normalize to list (for single selections, for now)
     if not isinstance(ind, list):
         ind = list(ind)
-    
     if strict:
         # continue asking for input until all index are between the selectable
         while not all([i in avail_with_0 for i in ind]):
@@ -140,18 +142,17 @@ def menu(choices = None, title = "", multiple = False, strict = False):
             print("Removed some values (not 0 or specified possibilities): ",
                   list(set(ind) - set(allowed)), ".")
             ind = allowed
-        
-    # make unique, and obtain the selection
-    ind = list(set(ind))
-    log_ind = [i in ind
-               for i in range(len(choices) + 1)
-               if i != 0]
-    rval = [c for c, ok in zip(choices, log_ind) if ok]
+    # make unique if not allowed repetitions
+    if not repeated:
+        ind = list(set(ind))
+    # obtain the selection
+    rval = [choices[i - 1] for i in ind if i != 0]
+    # return always a list should simplify the code
+    return rval
 
-    # return in handy way
-    if len(rval) == 0:
-        return None
-    elif len(rval) == 1:
-        return rval[0]
-    else:
-        return rval
+
+if __name__ == '__main__':
+    print(menu(choices  = ["a", "b", "c"],
+               title    = "Test menu multiple/repeated",
+               multiple = True,
+               repeated = True))

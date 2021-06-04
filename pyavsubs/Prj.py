@@ -21,6 +21,7 @@ sandbox_dir      = os.path.join(subs_dir, "sandbox")
 users_file       = os.path.join(data_dir, "users.csv")
 sndbx_tmpl_trn   = os.path.join(sandbox_dir, "template_trn.srt")
 sndbx_tmpl_rev1  = os.path.join(sandbox_dir, "template_rev1.srt")
+raw_gh_path      = "https://raw.githubusercontent.com/av-italia/subs/main"
 
 # funzione che crea il path file per un dato sandbox (dato da user e ruolo)
 def sandbox_f(user, role):
@@ -50,7 +51,7 @@ class Prj:
         prj_dir      = add_basedir(os.path.join(subs_dir, id))
         users_f      = add_basedir(users_file)
         source_srt_f = add_basedir(os.path.join(source_dir,
-                                                "{0}.srt".format(id))
+                                                "{0}.srt".format(id)))
         avanz_f      = os.path.join(prj_dir, 'zz_avanzamento.csv')
         final_srt_f  = os.path.join(prj_dir, "{0}_final.srt".format(id))
         # initialization
@@ -88,12 +89,10 @@ class Prj:
     def create_sandbox(self):
         trn_users = menu(title = 'Specificare utenti (TRN) per sandbox',
                          choices  = self.users.translators(),
-                         multiple = True,
-                         strict   = True)
+                         multiple = True)
         rev1_users = menu(title = 'Specificare utenti (REV1) per sandbox',
                           choices  = self.users.revisors1(),
-                          multiple = True,
-                          strict   = True)
+                          multiple = True)
         ## sandbox di translators
         if (len(trn_users)):
             ## notify: header
@@ -128,17 +127,119 @@ class Prj:
                 shutil.copyfile(template_path, f)
             # notification
             listing(files)
+                                   
+
+    def keep_sandboxed(self, users, role):
+        role = match_arg(role, ['translator', 'revisor1', 'revisor2'])
+        avail = []
+        miss  = []
+        for u in users:
+            s = self.add_basedir(sandbox_f(u, role = role))
+            if os.path.isfile(s):
+                avail.append(u)
+            else:
+                miss.append(u)
+        if len(miss) > 0:
+            msg = "Some users have no sandbox file for "
+            print(msg, role, "role: ", miss, '. Ignoring the request.')
+        return avail
 
 
+    def keep_swots(self, users, role):
+        role = match_arg(role, ['translator', 'revisor1', 'revisor2'])
+        swots = []
+        for u in users:
+            not_completed = self.avanz.unfinished_homeworks(u, role)
+            if len(not_completed) > 0:
+                print(u, 'has unfinished files:', not_completed,
+                      'Ignoring the request')
+            else:
+                swots.append(u)
+        return swots
+
+                  
     def assign(self):
-        pass
+        try:
+            # Utility functions
+            # -------------------------------------------
+            def worker(old_f, assignee, new_f, from_path, to_path, role):
+                os.replace(from_path, to_path)
+                self.avanz.assign(old_f = old_f, assignee = assignee,
+                                  new_f = new_f, role = role)
+            def excluded_users_message(u):
+                msg = "some users have no assignable files (finished, yee):" 
+                print(msg, u, '\n')
+            def try_assign(users, role):
+                role = match_arg(role, ['translator', 'revisor2'])
+                ascii_header(role)
+                # check for user pemissions
+                users = self.users.keep_allowed(users, role)
+                # check for available sandboxes
+                users = self.keep_sandboxed(users, role)
+                # check for done homeworks
+                users = self.keep_swots(users, role)
+                # are there remaining users for the request?
+                if len(users) == 0:
+                    raise ValueError("No user available for this request.")
+                # if there are assignable files, do the thing
+                assignable_files = self.avanz.assignable_files(role)
+                if len(assignable_files):
+                    max_assignments = min(len(users), len(assignable_files))
+                    assigned_users = []
+                    assigned_paths = []
+                    for i in range(max_assignments):
+                        assignee = users[i]
+                        assigned_users.append(assignee)
+                        old_f = assignable_files[i]
+                        old_p = os.path.join(self.prj_dir, old_f)
+                        new_f = "{0}_{1}.srt".format(
+                            os.path.splitext(old_f)[0],
+                            assignee
+                        )
+                        assigned_paths.append(new_f)
+                        new_p = os.path.join(self.prj_dir, new_f)
+                        worker(old_f, assignee, new_f, old_p, new_p, role)
+                    # do list paths for translators
+                    if role == 'translator':
+                        listing(assigned_paths)
+                    elif role == 'revisor2':
+                        rev2_urls = ["{0}/{1}".format(raw_gh_path, p) for
+                                p in assigned_paths]
+                        listing(rev2_urls)
+                    else:
+                        ValueError("Something wrong here")
+                else:
+                    print("No assignable files, all done, yee!")
+                        
+            # Main
+            # -------------------------------------------
+            assignable_trn = self.avanz.assignable_files('translator')
+            assignable_rev2 = self.avanz.assignable_files('revisor2')
+            # and if so go for assignment
+            if len(assignable_trn):
+                trn_users = menu(
+                    title = 'Specificare utenti (TRN) per sandbox',
+                    choices  = self.users.translators(),
+                    multiple = True)
+                if len(trn_users):
+                    try_assign(trn_users, 'translator')
+            # There are files for revision
+            if len(assignable_rev2):
+                rev2_users = menu(
+                    title = 'Specificare utenti (REV2) per sandbox',
+                    choices  = self.users.revisors1(),
+                    multiple = True)
+                if len(rev2_users):
+                    try_assign(rev2_users, 'revisor2')
+        finally:
+            self.avanz.to_disk()
 
 
     def mark_progresses(self):
         pass
 
 
-    def make_final_srt(self):
+    def make_final_srt(self, stats = True):
         pass
 
     

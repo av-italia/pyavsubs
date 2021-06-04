@@ -101,12 +101,12 @@ class Users():
         role = match_arg(role, ['translator', 'revisor1', 'revisor2'])
         if role == 'translator':
             allowed = self.translators()
-        else if role == 'revisor1':
+        elif role == 'revisor1':
             allowed = self.revisors1()
-        else if  role == 'revisor2':
+        elif  role == 'revisor2':
             allowed = self.revisors2()
         else:
-            ValueError("there is something wrong here".)
+            ValueError("there is something wrong here.")
         rval = []
         for u in users:
             if u in allowed:
