@@ -236,7 +236,73 @@ class Prj:
 
 
     def mark_progresses(self):
-        pass
+        # do all the stuff and save to disk avanz on exit
+        try:
+            # --------------
+            # completed TRN
+            # -------------
+            trn_in_progress = self.avanz.to_be_completed_files('translator')
+            if (trn_in_progress):
+                compl_trn = menu(
+                    title = 'Specificare files (TRN) per i quali è stata COMPLETATA la TRADUZIONE',
+                    choices  = trn_in_progress,
+                    multiple = True)
+                for t in compl_trn:
+                    self.avanz.mark_as_completed(t, 'trn')
+                # notify revisors
+                if compl_trn:
+                    self.available_rev1()
+            # -------------
+            # started REV1
+            # ------------
+            assignable_rev1 = self.avanz.assignable_files('revisor1')
+            if assignable_rev1:
+                started_rev1 = menu(
+                    title = 'Specificare files (REV1) per i quali è INIZIATA la PRIMA REVISIONE (LINGUISTICA)',
+                    choices  = assignable_rev1,
+                    multiple = True)
+                for r in started_rev1:
+                    u = menu(title = 'Chi è il revisore di: {0}'.format(r),
+                             choices = self.users.revisors1)
+                    self.avanz.mark_as_started(r, u, 'revisor1')
+            # --------------
+            # completed REV1
+            # --------------
+            rev1_in_progress = self.avanz.to_be_completed_files('revisor1')
+            if (rev1_in_progress):
+                compl_rev1 = menu(
+                    title = 'Specificare files (TRN) per i quali è stata COMPLETATA la PRIMA REVISIONE (LINGUISTICA)',
+                    choices  = rev1_in_progress,
+                    multiple = True)
+                for r in compl_rev1:
+                    self.avanz.mark_as_completed(r, 'rev1')
+            # --------------
+            # completed REV2
+            # --------------
+            rev2_in_progress = self.avanz.to_be_completed_files('revisor2')
+            if (rev2_in_progress):
+                compl_rev2 = menu(
+                    title = 'Specificare files (REV) per i quali è stata COMPLETATA la SECONDA REVISIONE (LEGGIBILITA)',
+                    choices  = rev2_in_progress,
+                    multiple = True)
+                for r in compl_rev2:
+                    self.avanz.mark_as_completed(r, 'rev2')
+            # ------------------
+            # REV2 to be created
+            # ------------------
+            rev2_todo = self.avanz.revs2_todo()
+            for r in rev2_todo:
+                trns = self.avanz.get_trn_fn_for_rev2(r)
+                rev = AVsrt(id = r, f = trns)
+                rev.write(f = os.path.join(self.prj_dir, r))
+                self.avanz.revs2_created(r)
+            if rev2_todo:
+                # notify revisors
+                self.available_rev2()
+
+        finally:
+            self.avanz.to_disk()
+
 
 
     def make_final_srt(self, stats = True):
