@@ -1,8 +1,8 @@
 import csv
 
-from utils import import_character
-from utils import import_logical
-from utils import match_arg
+from pyavsubs.utils import import_character
+from pyavsubs.utils import import_logical
+from pyavsubs.utils import match_arg
 
 class User():
     """

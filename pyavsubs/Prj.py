@@ -3,12 +3,12 @@ import shutil
 from tkinter import Tk
 from tkinter.filedialog import asksaveasfilename
 
-import Users
-import Avanz
-import AVsrt
-from utils import menu
-from utils import match_arg
-from utils import listing
+from pyavsubs.Users import Users
+from pyavsubs.Avanz import Avanz
+from pyavsubs.AVsrt import AVsrt
+from pyavsubs.utils import menu
+from pyavsubs.utils import match_arg
+from pyavsubs.utils import listing
 
 # Standard locations
 # ------------------
@@ -57,8 +57,8 @@ class Prj:
         # initialization
         self.id           = id
         self.yt_id        = yt_id
-        self.users        = Users.Users(f = users_f)
-        self.avanz        = Avanz.Avanz(f = avanz_f, id = id)
+        self.users        = Users(f = users_f)
+        self.avanz        = Avanz(f = avanz_f, id = id)
         self.source_srt_f = source_srt_f
         self.final_srt_f  = final_srt_f
         self.prj_dir      = prj_dir
@@ -72,7 +72,7 @@ class Prj:
         else:
             os.makedirs(self.prj_dir)
         # import and split source .srt
-        self.source_srt = AVsrt.AVsrt(f = self.source_srt_f, id = 'source')
+        self.source_srt = AVsrt(f = self.source_srt_f, id = 'source')
         # now split the source and obtain the chunk fnames to set up monitoring
         cfn = self.source_srt.split(chunks_len_mins = chunks_len_mins,
                                     yt_id           = self.yt_id,
@@ -316,7 +316,7 @@ class Prj:
             title = "Save subtitles statistics as csv:",
             initialfile = '{0}_stats'.format(self.id),
             defaultextension = '.csv')
-        AVsrt.AVsrt(f = self.final_srt_f, id = self.id).stats(f = outfile)
+        AVsrt(f = self.final_srt_f, id = self.id).stats(f = outfile)
 
     
     def list_assignee(self):
@@ -346,7 +346,7 @@ class Prj:
     def monitoring(self):
         self.avanz.monitoring()
 
-    def main_menu(self):
+    def menu(self):
         choices = ["Setup",
                    "Create sandboxes",
                    "Assign TRN or REV2",
@@ -362,6 +362,7 @@ class Prj:
         while True:
             sel = menu(choices = choices, title = 'MAIN MENU')
             if len(sel):
+                sel = sel[0]
                 if sel == "Setup":
                     self.setup()
                 elif sel == "Create sandboxes":

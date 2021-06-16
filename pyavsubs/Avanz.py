@@ -2,10 +2,10 @@ import csv
 import math
 import re
 
-from utils import ascii_header
-from utils import import_character
-from utils import import_logical
-from utils import match_arg
+from pyavsubs.utils import ascii_header
+from pyavsubs.utils import import_character
+from pyavsubs.utils import import_logical
+from pyavsubs.utils import match_arg
 
 def trn_dig_to_rev_fn(std, ratio):
     n_revs = math.floor(len(std)/ratio) + 1
