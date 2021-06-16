@@ -346,6 +346,52 @@ class Prj:
     def monitoring(self):
         self.avanz.monitoring()
 
+    def main_menu(self):
+        choices = ["Setup",
+                   "Create sandboxes",
+                   "Assign TRN or REV2",
+                   "Mark progresses",
+                   "Monitoring",
+                   "List available REV1",
+                   "List available REV2",
+                   "Make final srt",
+                   "Final SRT stats",
+                   "List assignee",
+                   "List users"]
+
+        while True:
+            sel = menu(choices = choices, title = 'MAIN MENU')
+            if len(sel):
+                if sel == "Setup":
+                    self.setup()
+                elif sel == "Create sandboxes":
+                    self.create_sandbox()
+                elif sel == "Assign TRN or REV2":
+                    self.assign()
+                elif sel == "Mark progresses":
+                    self.mark_progresses()
+                elif sel == "Monitoring":
+                    self.monitoring()
+                elif sel == "List available REV1":
+                    self.available_rev1()
+                elif sel == "List available REV2":
+                    self.available_rev2()
+                elif sel == "Make final srt":
+                    self.make_final_srt()
+                elif sel == "Final SRT stats":
+                    self.final_srt_stats()
+                elif sel == "List assignee":
+                    self.list_assignee()
+                elif sel == "List users":
+                    self.list_users()
+                else:
+                    raise ValueError("Something wrong in selection menu")
+            else:
+                break
+
+            
+        
+        
 if __name__ == '__main__':
     prj = Prj()
     ##### prj.setup()
