@@ -3,7 +3,9 @@
 Here you can find the software I use to manage the process/team
 involved in Italian subtitles creation for (long) YouTube videos, in
 case it could be useful for someone else. This is a Python port of
-[this](https://github.com/lbraglia/lbav2) R package.
+[this](https://github.com/lbraglia/lbav2) R package: the dependencies
+are [srt](https://github.com/cdown/srt) and
+[matplotlib](https://matplotlib.org/) libraries.
 
 Our first subbed video was [this
 one](https://www.youtube.com/watch?v=cJ9kGZMbyVw); we're now
