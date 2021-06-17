@@ -1,6 +1,7 @@
 import csv
 import math
 import re
+import matplotlib.pyplot as plt
 
 from pyavsubs.utils import ascii_header
 from pyavsubs.utils import import_character
@@ -370,8 +371,50 @@ class Avanz():
         print("\n\n")
         
     def monitoring(self):
-        pass
-    
+        fig = plt.figure()
+        ax = fig.add_subplot(1, 1, 1)
+
+        cols = {'compl' : 'forestgreen',
+                'start' : ['gold', 'khaki'][0],
+                'todo'  : 'red'}
+        alpha = 0.4
+        r_width = 0.33333
+        r_height = 0.10
+
+        trn_x = 0.0
+        rev1_x = trn_x + r_width
+        rev2_x = rev1_x + r_width
+
+        # row_id = 0
+        # row_y = 1r_height * (row_id + 1)
+        # c = plt.Rectangle((trn_x, row_y), r_width, r_height,
+        #                   color = cols["compl"], alpha = alpha)
+        # s = plt.Rectangle((rev1_x, row_y), r_width, r_height,
+        #                   color = cols["start"], alpha = alpha)
+        # t = plt.Rectangle((rev2_x, row_y), r_width, r_height,
+        #                   color = cols["todo"], alpha = alpha)
+        # ax.add_patch(c)
+        # ax.add_patch(s)
+        # ax.add_patch(t)
+
+        row_id = len(self.__data)
+        for c in self.__data: #c is a Chunk
+            row_y = r_height * (row_id - 1)
+            trn_rec = plt.Rectangle((trn_x, row_y), r_width, r_height,
+                                    color = cols["compl"], alpha = alpha)
+            rev1_rec = plt.Rectangle((rev1_x, row_y), r_width, r_height,
+                                     color = cols["start"], alpha = alpha)
+            rev2_rec = plt.Rectangle((rev2_x, row_y), r_width, r_height,
+                                     color = cols["todo"], alpha = alpha)
+            ax.add_patch(trn_rec)
+            ax.add_patch(rev1_rec)
+            ax.add_patch(rev2_rec)
+            row_id -= 1
+        
+        fig.show()
+
+# , 'yellow', 'red'
+        
 if __name__ == '__main__':
     av = Avanz(f = '/home/l/av_it_subs/subs/gymix/zz_avanzamento.csv')
     # print(av)
@@ -393,4 +436,6 @@ if __name__ == '__main__':
     # print(av.to_be_completed_files(role = "tr"))
     # print(av.to_be_completed_files(role = "revisor1"))
     # print(av.to_be_completed_files(role = "revisor2"))
-    print(av.filenames(phase = 'trn'))
+    # print(av.filenames(phase = 'trn'))
+    # print(av)
+    av.monitoring()
