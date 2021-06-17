@@ -1,7 +1,9 @@
 import csv
+import datetime
 import math
-import re
+import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
+import re
 
 from pyavsubs.utils import ascii_header
 from pyavsubs.utils import import_character
@@ -371,46 +373,72 @@ class Avanz():
         print("\n\n")
         
     def monitoring(self):
+        n = len(self.__data)
         fig = plt.figure()
         ax = fig.add_subplot(1, 1, 1)
-
-        cols = {'compl' : 'forestgreen',
-                'start' : ['gold', 'khaki'][0],
-                'todo'  : 'red'}
-        alpha = 0.4
-        r_width = 0.33333
+        ax.set_aspect(13/16)
+        # graphical parameters
+        alpha = 0.6
+        r_width = 0.25
         r_height = 0.10
-
-        trn_x = 0.0
+        label_x = r_width # right_aligned
+        trn_x = 0.25
         rev1_x = trn_x + r_width
         rev2_x = rev1_x + r_width
-
-        # row_id = 0
-        # row_y = 1r_height * (row_id + 1)
-        # c = plt.Rectangle((trn_x, row_y), r_width, r_height,
-        #                   color = cols["compl"], alpha = alpha)
-        # s = plt.Rectangle((rev1_x, row_y), r_width, r_height,
-        #                   color = cols["start"], alpha = alpha)
-        # t = plt.Rectangle((rev2_x, row_y), r_width, r_height,
-        #                   color = cols["todo"], alpha = alpha)
-        # ax.add_patch(c)
-        # ax.add_patch(s)
-        # ax.add_patch(t)
-
-        row_id = len(self.__data)
+        # color selector
+        def col(assigned, completed):
+            cols = ['red', 'gold', 'forestgreen']
+            # if neither assigned or completed 0, assigned 1, completed 2
+            sel = assigned + completed 
+            return cols[sel]
+        # plotting
+        title = "{0}: avanzamento al {1}".format(
+            self.__id,
+            datetime.date.today().strftime("%d/%m/%Y")
+        )
+        plt.title(title)
+        # axis
+        plt.axis('off')
+        # xlim and ylim
+        ax.set_ylim(0, r_height * (n + 2))
+        ax.set_xlim(0, r_width * 7)
+        # header
+        header_y    = r_height * (n + 1)
+        head_time_x = r_width / 2 
+        head_trn_x  = head_time_x + r_width
+        head_rev1_x = head_trn_x + r_width
+        head_rev2_x = head_rev1_x + r_width
+        plt.text(head_time_x, header_y, 'time', ha = "center", va = "center")
+        plt.text(head_trn_x , header_y, 'trn',  ha = "center", va = "center")
+        plt.text(head_rev1_x, header_y, 'rev1', ha = "center", va = "center")
+        plt.text(head_rev2_x, header_y, 'rev2', ha = "center", va = "center")
+        # legend
+        # leg_todo = mpatches.Patch(color = 'red', label = 'TODO')
+        # leg_started = mpatches.Patch(color = 'gold', label = 'started')
+        # leg_comp = mpatches.Patch(color = 'forestgreen', label = 'completed')
+        # handles = [leg_todo, leg_started, leg_comp]
+        # plt.legend(handles = handles, loc = 1)
+        # print rectangles
+        row_id = n
         for c in self.__data: #c is a Chunk
             row_y = r_height * (row_id - 1)
+            label_y = row_y + 0.5 * r_height
+            plt.text(label_x, label_y, c.trn_start[0:5],
+                     ha = "right", va = "center")
+            trn_col  = col(c.trn_assigned, c.trn_completed)
+            rev1_col = col(c.rev1_assigned, c.rev1_completed)
+            rev2_col = col(c.rev2_assigned, c.rev2_completed)
             trn_rec = plt.Rectangle((trn_x, row_y), r_width, r_height,
-                                    color = cols["compl"], alpha = alpha)
+                                    color = trn_col, alpha = alpha)
             rev1_rec = plt.Rectangle((rev1_x, row_y), r_width, r_height,
-                                     color = cols["start"], alpha = alpha)
+                                     color = rev1_col, alpha = alpha)
             rev2_rec = plt.Rectangle((rev2_x, row_y), r_width, r_height,
-                                     color = cols["todo"], alpha = alpha)
+                                     color = rev2_col, alpha = alpha)
             ax.add_patch(trn_rec)
             ax.add_patch(rev1_rec)
             ax.add_patch(rev2_rec)
             row_id -= 1
-        
+
         fig.show()
 
 # , 'yellow', 'red'
