@@ -103,12 +103,12 @@ class Prj:
             if len(allowed_users) == 0:
                 ValueError("No allowed users for this request. Aborting.")
             ## files and dirs
-            files = [self.add_basedir(sandbox_f(u, role = "translator"))
-                     for u in allowed_users]
-            template_path = self.add_basedir(sndbx_tmpl_trn)
+            template_path = sndbx_tmpl_trn
+            files = [sandbox_f(u, role = "translator") for u in allowed_users]
             # file copy
             for f in files:
-                shutil.copyfile(template_path, f)
+                shutil.copyfile(self.add_basedir(template_path),
+                                self.add_basedir(f))
             # notification
             listing(files)
         ## sandbox di revisori (per revisione 1)
@@ -120,12 +120,12 @@ class Prj:
             if len(allowed_users) == 0:
                 ValueError("No allowed users for this request. Aborting.")
             ## files and dirs
-            files = [self.add_basedir(sandbox_f(u, role = "revisor1"))
-                     for u in allowed_users]
-            template_path = self.add_basedir(sndbx_tmpl_rev1)
+            template_path = sndbx_tmpl_rev1
+            files = [sandbox_f(u, role = "revisor1") for u in allowed_users]
             # file copy
             for f in files:
-                shutil.copyfile(template_path, f)
+                shutil.copyfile(self.add_basedir(template_path),
+                                self.add_basedir(f))
             # notification
             listing(files)
                                    
@@ -307,7 +307,12 @@ class Prj:
 
 
     def make_final_srt(self, stats = True):
-        pass
+        revs = [self.add_basedir(os.path.join(self.prj_dir, f))
+                for f in self.avanz.filenames('rev2')]
+        final_srt = AVsrt(id = self.id, f = revs)
+        final_srt.write(self.add_basedir(self.final_srt_f))
+        if stats:
+            self.final_srt_stats()
 
     
     def final_srt_stats(self):
@@ -317,7 +322,8 @@ class Prj:
             title = "Save subtitles statistics as csv:",
             initialfile = '{0}_stats'.format(self.id),
             defaultextension = '.csv')
-        AVsrt(f = self.final_srt_f, id = self.id).stats(f = outfile)
+        AVsrt(f = self.add_basedir(self.final_srt_f),
+              id = self.id).stats(f = outfile)
 
     
     def list_assignee(self):
@@ -361,7 +367,8 @@ class Prj:
                    "List users"]
 
         while True:
-            sel = menu(choices = choices, title = 'MAIN MENU')
+            sel = menu(choices = choices,
+                       title = 'MAIN MENU (prj = ' + self.id + ')')
             if len(sel):
                 sel = sel[0]
                 if sel == "Setup":

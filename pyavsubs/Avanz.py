@@ -363,14 +363,20 @@ class Avanz():
     
     def list_assignee(self):
         print("\n\n")
-        print("Time\tTrn\Rev1\tRev2")
+        hstart = "Time"
+        htrn   = "Trn"
+        hrev1  = "Rev1"
+        hrev2  = "Rev2"
+        print("```")
+        print(f"{hstart:9}{htrn:12}{hrev1:12}{hrev2:12}")
         for c in self.__data:
-            line = "{0}\t{1}\t{2}\t{3}".format(c.trn_start,
-                                               c.trn_assignee,
-                                               c.rev1_assignee,
-                                               c.rev2_assignee)
-            print(line)
-        print("\n\n")
+            start = c.trn_start
+            trn   = c.trn_assignee if c.trn_assignee is not None else "None"
+            rev1  = c.rev1_assignee if c.rev1_assignee is not None else "None"
+            rev2  = c.rev2_assignee if c.rev2_assignee is not None else "None"
+            print(f"{start:9}{trn:12}{rev1:12}{rev2:12}")
+        print("```")
+        print("\n")
         
     def monitoring(self):
         n = len(self.__data)

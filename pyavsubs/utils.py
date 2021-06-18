@@ -49,7 +49,7 @@ def ascii_header(x):
 def listing(x):
     for i in x:
         print(i)
-    print("\n")
+    # print("\n")
 
    
 def line_to_numbers(x, unique = False):
@@ -120,8 +120,8 @@ def menu(choices  = None,
     else:
         select_msg = "Selection (0 to exit): "
     if title:
-        print(title, "\n\n")
-    print(the_menu)
+        ascii_header(title)
+    print(the_menu, '\n')
     ind = line_to_numbers(input(select_msg))
     # normalize to list (for single selections, for now)
     if not isinstance(ind, list):
