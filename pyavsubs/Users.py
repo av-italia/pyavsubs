@@ -91,7 +91,7 @@ class Users():
             msg = "role must be 'translators', 'revisors1' or 'revisors2'"
             raise ValueError(msg)
         tags = ["@" + u for u in us]
-        return " ".join(tags)
+        print(" ".join(tags), end = '')
 
     def keep_allowed(self, users, role):
         ## input github logins and check that are allowed as role

@@ -335,17 +335,17 @@ class Prj:
 
     
     def available_rev1(self):
-        self.users.mention("revisor1")
-        msg 
-        print(": files attualmente disponibili per la revisione linguistica:\n\n")
+        print("\n")
+        self.users.mention("revisors1")
+        print(": files attualmente disponibili per la revisione linguistica:\n")
         listing(self.avanz.assignable_files('revisor1'))
         print("\n")
             
     
     def available_rev2(self):
-        self.users.mention("revisor2")
-        msg 
-        print(": files attualmente disponibili per la revisione linguistica:\n\n")
+        print("\n")
+        self.users.mention("revisors2")
+        print(": files attualmente disponibili per la revisione di leggibilità:\n")
         listing(self.avanz.assignable_files('revisor2'))
         print("\n")
 
