@@ -6,6 +6,7 @@ from tkinter.filedialog import asksaveasfilename
 from pyavsubs.Users import Users
 from pyavsubs.Avanz import Avanz
 from pyavsubs.AVsrt import AVsrt
+from pyavsubs.utils import ascii_header
 from pyavsubs.utils import menu
 from pyavsubs.utils import match_arg
 from pyavsubs.utils import listing
