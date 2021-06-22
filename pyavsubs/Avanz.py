@@ -333,7 +333,8 @@ class Avanz():
         # update creable rev2     
         if phase == 'rev1':
             for c in self.__data:
-                c.rev2_ready = rev2_complete[c.rev2_filename]
+                # c.rev2_ready = rev2_complete[c.rev2_filename]
+                c.rev2_ready = rev2_ready[c.rev2_filename]
         
         # checks: tutte le rev2 complete, creazione
         if phase == 'rev2':

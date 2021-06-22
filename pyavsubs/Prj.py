@@ -42,9 +42,12 @@ def sandbox_f(user, role):
 class Prj:
 
 
-    def __init__(self, id = "test",
+    def __init__(self,
+                 id = "test",
                  yt_id = "testid",
-                 base_dir = "/home/l/av_it_subs"):
+                 base_dir = "."
+                 # base_dir = "/home/l/av_it_subs"
+    ):
         # add base_dir to the standard locations
         def add_basedir(x):
             return os.path.join(base_dir, x)
@@ -197,12 +200,12 @@ class Prj:
                             os.path.splitext(old_f)[0],
                             assignee
                         )
-                        assigned_paths.append(new_f)
                         new_p = os.path.join(self.prj_dir, new_f)
+                        assigned_paths.append(new_p)
                         worker(old_f, assignee, new_f, old_p, new_p, role)
                     # do list paths for translators
                     if role == 'translator':
-                        listing(assigned_paths)
+                        listing(assigned_paths) #todohere
                     elif role == 'revisor2':
                         rev2_urls = ["{0}/{1}".format(raw_gh_path, p) for
                                 p in assigned_paths]
@@ -219,7 +222,7 @@ class Prj:
             # and if so go for assignment
             if len(assignable_trn):
                 trn_users = menu(
-                    title = 'Specificare utenti (TRN) per sandbox',
+                    title = 'Specificare utenti (TRN) per assegnazione traduzione',
                     choices  = self.users.translators(),
                     multiple = True)
                 if len(trn_users):
@@ -227,8 +230,8 @@ class Prj:
             # There are files for revision
             if len(assignable_rev2):
                 rev2_users = menu(
-                    title = 'Specificare utenti (REV2) per sandbox',
-                    choices  = self.users.revisors1(),
+                    title = 'Specificare utenti (REV2) per assegnazione revisionee',
+                    choices  = self.users.revisors2(),
                     multiple = True)
                 if len(rev2_users):
                     try_assign(rev2_users, 'revisor2')
@@ -264,7 +267,7 @@ class Prj:
                     multiple = True)
                 for r in started_rev1:
                     u = menu(title = 'Chi è il revisore di: {0}'.format(r),
-                             choices = self.users.revisors1)
+                             choices = self.users.revisors1())
                     self.avanz.mark_as_started(r, u, 'revisor1')
             # --------------
             # completed REV1
