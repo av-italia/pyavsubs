@@ -360,7 +360,7 @@ class Avanz():
         res = []
         for c in self.__data:
             res += [c.trn_filename] if (c.rev2_filename == f) else []
-        return [sorted(res)]
+        return list(sorted(res))
     
     def list_assignee(self):
         print("\n\n")
