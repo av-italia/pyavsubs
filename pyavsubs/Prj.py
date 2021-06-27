@@ -1,7 +1,7 @@
 import os
 import shutil
-from tkinter import Tk
-from tkinter.filedialog import asksaveasfilename
+# from tkinter import Tk
+# from tkinter.filedialog import asksaveasfilename
 
 from pyavsubs.Users import Users
 from pyavsubs.Avanz import Avanz
@@ -316,18 +316,15 @@ class Prj:
                 for f in self.avanz.filenames('rev2')]
         final_srt = AVsrt(id = self.id, f = revs)
         final_srt.write(self.final_srt_f)
+        print("final srt saved in " + self.final_srt_f)
         if stats:
             self.final_srt_stats()
 
     
     def final_srt_stats(self):
-        # obtain output file for stats
-        Tk().withdraw() 
-        outfile = asksaveasfilename(
-            title = "Save subtitles statistics as csv:",
-            initialfile = '{0}_stats'.format(self.id),
-            defaultextension = '.csv')
+        outfile = '/tmp/{0}_stats.csv'.format(self.id)
         AVsrt(f = self.final_srt_f, id = self.id).stats(f = outfile)
+        print("final srt stats saved in " + outfile)
 
     
     def list_assignee(self):
