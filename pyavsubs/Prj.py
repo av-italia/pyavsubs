@@ -72,22 +72,23 @@ class Prj:
     def setup(self, chunks_len_mins = 5, trn_to_rev_ratio = 6):
         # setup the directory or fail if already set up
         if os.path.isdir(self.prj_dir):
-            raise ValueError(self.prj_dir + " already exstisting. Aborting.")
+            print(self.prj_dir + " already exstisting. Ignoring setup request.")
         else:
             os.makedirs(self.prj_dir)
-        # import and split source .srt
-        self.source_srt = AVsrt(f = self.source_srt_f, id = 'source')
-        # now split the source and obtain the chunk fnames to set up monitoring
-        cfn = self.source_srt.split(chunks_len_mins = chunks_len_mins,
-                                    yt_id           = self.yt_id,
-                                    output_dir      = self.prj_dir)
-        # setup monitoring
-        self.avanz.setup(trn_filenames = cfn,
-                         trn_to_rev_ratio = trn_to_rev_ratio)
-        # setup unsubbed
-        unsubbed_f = os.path.join(self.prj_dir, 'zz_UNSUBBED')
-        with open(file = unsubbed_f, mode = 'w') as f:
-            pass # empty file is fine
+            # import and split source .srt
+            self.source_srt = AVsrt(f = self.source_srt_f, id = 'source')
+            # now split the source and obtain the chunk fnames to set up monitoring
+            cfn = self.source_srt.split(chunks_len_mins = chunks_len_mins,
+                                        yt_id           = self.yt_id,
+                                        output_dir      = self.prj_dir)
+            # setup monitoring (and reloading)
+            self.avanz.setup(trn_filenames = cfn,
+                             trn_to_rev_ratio = trn_to_rev_ratio)
+            self.avanz.from_disk()
+            # setup unsubbed
+            unsubbed_f = os.path.join(self.prj_dir, 'zz_UNSUBBED')
+            with open(file = unsubbed_f, mode = 'w') as f:
+                pass # empty file is fine
 
 
     def create_sandbox(self):
@@ -267,7 +268,7 @@ class Prj:
                     multiple = True)
                 for r in started_rev1:
                     u = menu(title = 'Chi è il revisore di: {0}'.format(r),
-                             choices = self.users.revisors1())
+                             choices = self.users.revisors1())[0]
                     self.avanz.mark_as_started(r, u, 'revisor1')
             # --------------
             # completed REV1

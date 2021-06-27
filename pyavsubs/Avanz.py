@@ -380,58 +380,66 @@ class Avanz():
         print("\n")
         
     def monitoring(self):
-        n = len(self.__data)
-        fig = plt.figure()
-        ax = fig.add_subplot(1, 1, 1)
-        ax.set_aspect(13/16)
-        # graphical parameters
-        alpha = 0.6
-        r_width = 0.25
-        r_height = 0.10
-        label_x = r_width # right_aligned
-        trn_x = 0.25
-        rev1_x = trn_x + r_width
-        rev2_x = rev1_x + r_width
+        ## utils ----------------------------------
         # color selector
         def col(assigned, completed):
             cols = ['red', 'gold', 'forestgreen']
             # if neither assigned or completed 0, assigned 1, completed 2
             sel = assigned + completed 
             return cols[sel]
-        # plotting
+        ## end utils -------------------------------
+        n = len(self.__data)
         title = "{0}: avanzamento al {1}".format(
             self.__id,
-            datetime.date.today().strftime("%d/%m/%Y")
-        )
+            datetime.date.today().strftime("%d/%m/%Y"))
+        # graphical parameters
+        alpha = 0.6
+        r_width = 0.50
+        r_height = 0.10
+        # rectangles positioning
+        time_x = r_width/2 # right_aligned
+        trn_x =  r_width   # 0.25
+        rev1_x = trn_x + r_width
+        rev2_x = rev1_x + r_width
+        # header positioning
+        header_y    = r_height * (n + 1)
+        header_time_x = r_width / 2 
+        header_trn_x  = header_time_x + r_width
+        header_rev1_x = header_trn_x + r_width
+        header_rev2_x = header_rev1_x + r_width
+        # plotting
+        fig = plt.figure(dpi = 600)
+        ax = fig.add_subplot(1, 1, 1)
+        ax.set_aspect(13/16)
         plt.title(title)
         # axis
         plt.axis('off')
         # xlim and ylim
         ax.set_ylim(0, r_height * (n + 2))
         ax.set_xlim(0, r_width * 7)
-        # header
-        header_y    = r_height * (n + 1)
-        head_time_x = r_width / 2 
-        head_trn_x  = head_time_x + r_width
-        head_rev1_x = head_trn_x + r_width
-        head_rev2_x = head_rev1_x + r_width
-        plt.text(head_time_x, header_y, 'time', ha = "center", va = "center")
-        plt.text(head_trn_x , header_y, 'trn',  ha = "center", va = "center")
-        plt.text(head_rev1_x, header_y, 'rev1', ha = "center", va = "center")
-        plt.text(head_rev2_x, header_y, 'rev2', ha = "center", va = "center")
+        # header plotting
+        plt.text(header_time_x, header_y, 'time', ha = "center", va = "center")
+        plt.text(header_trn_x , header_y, 'trn',  ha = "center", va = "center")
+        plt.text(header_rev1_x, header_y, 'rev1', ha = "center", va = "center")
+        plt.text(header_rev2_x, header_y, 'rev2', ha = "center", va = "center")
         # legend
-        # leg_todo = mpatches.Patch(color = 'red', label = 'TODO')
-        # leg_started = mpatches.Patch(color = 'gold', label = 'started')
-        # leg_comp = mpatches.Patch(color = 'forestgreen', label = 'completed')
-        # handles = [leg_todo, leg_started, leg_comp]
-        # plt.legend(handles = handles, loc = 1)
+        leg_todo = mpatches.Patch(color = 'red', label = 'TODO')
+        leg_started = mpatches.Patch(color = 'gold', label = 'started')
+        leg_comp = mpatches.Patch(color = 'forestgreen', label = 'completed')
+        leg_x = rev2_x + r_width
+        leg_y = (n * r_height) / 2
+        leg_pos = (leg_x, leg_y)
+        handles = [leg_todo, leg_started, leg_comp]
+        # plt.legend(handles = handles, bbox_to_anchor = leg_pos, loc = 'best')
+        plt.legend(handles = handles)
         # print rectangles
         row_id = n
         for c in self.__data: #c is a Chunk
             row_y = r_height * (row_id - 1)
             label_y = row_y + 0.5 * r_height
-            plt.text(label_x, label_y, c.trn_start[0:5],
-                     ha = "right", va = "center")
+            plt.text(time_x, label_y, c.trn_start[0:5],
+                     ha = "center", va = "center",
+                     fontsize = 'xx-small')
             trn_col  = col(c.trn_assigned, c.trn_completed)
             rev1_col = col(c.rev1_assigned, c.rev1_completed)
             rev2_col = col(c.rev2_assigned, c.rev2_completed)
@@ -446,10 +454,15 @@ class Avanz():
             ax.add_patch(rev2_rec)
             row_id -= 1
 
-        fig.show()
+        # fig.show()
+        outfile = "/tmp/monitoring.png"
+        print("file saved in " + outfile)
+        plt.savefig(outfile,
+                    bbox_inches = 'tight',
+                    pad_inches = 0.1)
 
-# , 'yellow', 'red'
-        
+
+       
 if __name__ == '__main__':
     av = Avanz(f = '/home/l/av_it_subs/subs/gymix/zz_avanzamento.csv')
     # print(av)
