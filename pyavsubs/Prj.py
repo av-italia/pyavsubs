@@ -231,7 +231,7 @@ class Prj:
             # There are files for revision
             if len(assignable_rev2):
                 rev2_users = menu(
-                    title = 'Specificare utenti (REV2) per assegnazione revisionee',
+                    title = 'Specificare utenti (REV2) per assegnazione revisione',
                     choices  = self.users.revisors2(),
                     multiple = True)
                 if len(rev2_users):
@@ -298,7 +298,8 @@ class Prj:
             rev2_todo = self.avanz.revs2_todo()
             for r in rev2_todo:
                 trns = self.avanz.get_trn_fn_for_rev2(r)
-                rev = AVsrt(id = r, f = trns)
+                paths = [os.path.join(self.prj_dir, t) for t in trns]
+                rev = AVsrt(id = r, f = paths)
                 rev.write(f = os.path.join(self.prj_dir, r))
                 self.avanz.revs2_created(r)
             if rev2_todo:
@@ -311,10 +312,10 @@ class Prj:
 
 
     def make_final_srt(self, stats = True):
-        revs = [self.add_basedir(os.path.join(self.prj_dir, f))
+        revs = [os.path.join(self.prj_dir, f)
                 for f in self.avanz.filenames('rev2')]
         final_srt = AVsrt(id = self.id, f = revs)
-        final_srt.write(self.add_basedir(self.final_srt_f))
+        final_srt.write(self.final_srt_f)
         if stats:
             self.final_srt_stats()
 
@@ -326,8 +327,7 @@ class Prj:
             title = "Save subtitles statistics as csv:",
             initialfile = '{0}_stats'.format(self.id),
             defaultextension = '.csv')
-        AVsrt(f = self.add_basedir(self.final_srt_f),
-              id = self.id).stats(f = outfile)
+        AVsrt(f = self.final_srt_f, id = self.id).stats(f = outfile)
 
     
     def list_assignee(self):
