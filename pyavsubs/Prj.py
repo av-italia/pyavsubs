@@ -354,6 +354,12 @@ class Prj:
     def monitoring(self):
         self.avanz.monitoring()
 
+
+    # def burn_with_source(self):
+    #     file_srt = self.id + '.srt'
+    #     cmd = 'ffmpeg'
+
+
     def menu(self):
         choices = ["Setup",
                    "Create sandboxes",
