@@ -98,7 +98,7 @@ def line_to_numbers(x, unique = False):
         rval = list(set(expanded))
     else:
         rval = expanded
-    rval.sort()
+    # rval.sort()
     return(rval)
 
 
