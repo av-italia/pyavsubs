@@ -25,7 +25,7 @@ def import_character(x):
     else:
         return str(x)
 
-    
+
 def match_arg(arg, choices):
     res = [expanded for expanded in choices \
            if expanded.startswith(arg)]
@@ -37,7 +37,17 @@ def match_arg(arg, choices):
     else:
         return res[0]
 
-    
+
+def unique(items):
+    seen = set()
+    for item in items:
+        if item in seen:
+            pass
+        else:
+            seen.add(item)
+            yield item
+
+
 def ascii_header(x):
     l = len(x)
     header = ("=" * l)
@@ -52,7 +62,7 @@ def listing(x):
     # print("\n")
 
    
-def line_to_numbers(x, unique = False):
+def line_to_numbers(x):
     """ transform a string of positive numbers "1 2-3, 4, 6-10" to a list [1,2,3,4,6,7,8,9,10] """
     # replace comma with white chars
     x = x.replace(",", " ")
@@ -93,14 +103,7 @@ def line_to_numbers(x, unique = False):
     # coerce to integer expanded
     for i in range(len(expanded)):
         expanded[i] = int(expanded[i])
-    # remove duplicated and sort
-    if unique:
-        rval = list(set(expanded))
-    else:
-        rval = expanded
-    # rval.sort()
-    return(rval)
-
+    return(expanded)
 
 def menu(choices  = None,
          title    = "",
@@ -144,7 +147,7 @@ def menu(choices  = None,
             ind = allowed
     # make unique if not allowed repetitions
     if not repeated:
-        ind = list(set(ind))
+        ind = list(unique(ind))
     # obtain the selection
     rval = [choices[i - 1] for i in ind if i != 0]
     # return always a list should simplify the code
@@ -155,4 +158,7 @@ if __name__ == '__main__':
     print(menu(choices  = ["a", "b", "c"],
                title    = "Test menu multiple/repeated",
                multiple = True,
-               repeated = True))
+               repeated = False))
+
+            
+    
