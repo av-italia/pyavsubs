@@ -204,6 +204,8 @@ class Prj:
                         new_p = os.path.join(self.prj_dir, new_f)
                         assigned_paths.append(new_p)
                         worker(old_f, assignee, new_f, old_p, new_p, role)
+                    # remove ./ from the path for pretty printing
+                    assigned_paths = [p[2:] for p in assigned_paths]
                     # do list paths for translators
                     if role == 'translator':
                         listing(assigned_paths) #todohere
