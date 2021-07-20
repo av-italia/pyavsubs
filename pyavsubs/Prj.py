@@ -340,8 +340,10 @@ class Prj:
     def available_rev1(self):
         print("\n")
         self.users.mention("revisors1")
-        print(": files attualmente disponibili per la revisione linguistica:\n")
-        listing(self.avanz.assignable_files('revisor1'))
+        print(", files disponibili per la revisione linguistica:\n")
+        files = [os.path.join(self.prj_dir, r)[2:]
+                 for r in self.avanz.assignable_files('revisor1')]
+        listing(files)
         print("\n")
             
     
