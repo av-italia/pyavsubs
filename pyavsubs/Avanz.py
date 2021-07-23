@@ -4,6 +4,7 @@ import math
 import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
 import re
+import os
 
 from pyavsubs.utils import ascii_header
 from pyavsubs.utils import import_character
@@ -379,7 +380,7 @@ class Avanz():
         print("```")
         print("\n")
         
-    def monitoring(self):
+    def monitoring(self, viewer = None):
         ## utils ----------------------------------
         # color selector
         def col(assigned, completed):
@@ -460,6 +461,8 @@ class Avanz():
         plt.savefig(outfile,
                     bbox_inches = 'tight',
                     pad_inches = 0.1)
+        if viewer:
+            os.system(viewer + ' ' + outfile)
 
 
        

@@ -22,7 +22,15 @@ sandbox_dir      = os.path.join(subs_dir, "sandbox")
 users_file       = os.path.join(data_dir, "users.csv")
 sndbx_tmpl_trn   = os.path.join(sandbox_dir, "template_trn.srt")
 sndbx_tmpl_rev1  = os.path.join(sandbox_dir, "template_rev1.srt")
-raw_gh_path      = "https://raw.githubusercontent.com/av-italia/subs/main"
+
+# external programs
+img_viewer = 'feh -F'
+browser = 'firefox'
+
+# www-urls
+github_repo = "https://github.com/av-italia/subs/tree/main/subs/"
+raw_gh_path = "https://raw.githubusercontent.com/av-italia/subs/main"
+
 
 # funzione che crea il path file per un dato sandbox (dato da user e ruolo)
 def sandbox_f(user, role):
@@ -40,7 +48,6 @@ def sandbox_f(user, role):
 
 
 class Prj:
-
 
     def __init__(self,
                  id = "test",
@@ -356,12 +363,34 @@ class Prj:
 
     
     def monitoring(self):
-        self.avanz.monitoring()
+        self.avanz.monitoring(viewer = img_viewer)
+
+    # -----
+    # utils
+    # -----
+    def browse_repo(self, browser = browser):
+        os.system(browser + ' ' + github_repo + self.id)
 
 
-    # def burn_with_source(self):
-    #     file_srt = self.id + '.srt'
-    #     cmd = 'ffmpeg'
+    def git_pull(self):
+        os.chdir(self.add_basedir("")) #mv to basedir
+        os.system('git pull')
+
+
+    def git_status(self):
+        os.chdir(self.add_basedir("")) #mv to basedir
+        os.system('git status')
+
+
+    def git_add_commit(self, commit_msg = 'update'):
+        os.chdir(self.add_basedir("")) #mv to basedir
+        os.system("git add .")
+        os.system("git commit -m '{0}'".format(commit_msg))
+
+        
+    def burn_with_source(self):
+        cmd = "ffmpeg -i source/{0}.srt /tmp/{0}.ass && ffmpeg -i video/{0}.mp4 -vf ass=/tmp/{0}.ass /tmp/{0}_en_subtitled.mp4".format(self.id)
+        os.system(cmd)
 
 
     def menu(self):
@@ -375,7 +404,15 @@ class Prj:
                    "Make final srt",
                    "Final SRT stats",
                    "List assignee",
-                   "List users"]
+                   "List users",
+                   # utils
+                   "Browse project repository",
+                   "git pull",
+                   "git status",
+                   "git add and commit",
+                   "Burn video with source",
+
+        ]
 
         while True:
             sel = menu(choices = choices,
@@ -404,6 +441,16 @@ class Prj:
                     self.list_assignee()
                 elif sel == "List users":
                     self.list_users()
+                elif sel == "Browse project repository":
+                    self.browse_repo()
+                elif sel == "git pull":
+                    self.git_pull()
+                elif sel == "git status":
+                    self.git_status()
+                elif sel == "git add and commit":
+                    self.git_add_commit()
+                elif sel == "Burn video with source":
+                    self.burn_with_source()
                 else:
                     raise ValueError("Something wrong in selection menu")
             else:
