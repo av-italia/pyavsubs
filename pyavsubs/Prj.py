@@ -387,6 +387,9 @@ class Prj:
         os.system("git add .")
         os.system("git commit -m '{0}'".format(commit_msg))
 
+    def git_push(self, commit_msg = 'update'):
+        os.chdir(self.add_basedir("")) #mv to basedir
+        os.system("git push")
         
     def burn_with_source(self):
         cmd = "ffmpeg -i source/{0}.srt /tmp/{0}.ass && ffmpeg -i video/{0}.mp4 -vf ass=/tmp/{0}.ass /tmp/{0}_en_subtitled.mp4".format(self.id)
@@ -410,6 +413,7 @@ class Prj:
                    "git pull",
                    "git status",
                    "git add and commit",
+                   "git push",
                    "Burn video with source",
 
         ]
@@ -449,6 +453,8 @@ class Prj:
                     self.git_status()
                 elif sel == "git add and commit":
                     self.git_add_commit()
+                elif sel == "git push":
+                    self.git_push()
                 elif sel == "Burn video with source":
                     self.burn_with_source()
                 else:
