@@ -31,6 +31,23 @@ browser = 'firefox'
 github_repo = "https://github.com/av-italia/subs/tree/main/subs/"
 raw_gh_path = "https://raw.githubusercontent.com/av-italia/subs/main"
 
+# File templates
+# --------------
+# zz_UNSUBBED
+unsubbed_tmpl = """\
+========
+Template
+========
+00:00:33
+## Testo inglese
+Testo tradotto in italiano
+
+=================================================
+Inserire qui sotto
+=================================================
+
+"""
+
 
 # funzione che crea il path file per un dato sandbox (dato da user e ruolo)
 def sandbox_f(user, role):
@@ -95,7 +112,7 @@ class Prj:
             # setup unsubbed
             unsubbed_f = os.path.join(self.prj_dir, 'zz_UNSUBBED')
             with open(file = unsubbed_f, mode = 'w') as f:
-                pass # empty file is fine
+                f.write(unsubbed_tmpl)
 
 
     def create_sandbox(self):
