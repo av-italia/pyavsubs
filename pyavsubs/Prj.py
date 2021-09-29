@@ -425,14 +425,15 @@ class Prj:
                    "Final SRT stats",
                    "List assignee",
                    "List users",
+                   # -----
                    # utils
-                   "Browse project repository",
+                   # -----
                    "git pull",
                    "git status",
                    "git add and commit",
                    "git push",
-                   "Burn video with source",
-
+                   "Browse project repository",
+                   "Burn video with source"
         ]
 
         while True:
@@ -462,8 +463,6 @@ class Prj:
                     self.list_assignee()
                 elif sel == "List users":
                     self.list_users()
-                elif sel == "Browse project repository":
-                    self.browse_repo()
                 elif sel == "git pull":
                     self.git_pull()
                 elif sel == "git status":
@@ -472,6 +471,8 @@ class Prj:
                     self.git_add_commit()
                 elif sel == "git push":
                     self.git_push()
+                elif sel == "Browse project repository":
+                    self.browse_repo()
                 elif sel == "Burn video with source":
                     self.burn_with_source()
                 else:
