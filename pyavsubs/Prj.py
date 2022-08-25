@@ -323,6 +323,7 @@ class Prj:
             # ------------------
             rev2_todo = self.avanz.revs2_todo()
             for r in rev2_todo:
+                print("\nCreating " + r + " rev file.\n")
                 trns = self.avanz.get_trn_fn_for_rev2(r)
                 paths = [os.path.join(self.prj_dir, t) for t in trns]
                 rev = AVsrt(id = r, f = paths)
